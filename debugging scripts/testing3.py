@@ -3,7 +3,7 @@ import evaluation
 
 # create a board and set a position
 board = chess.Board()
-board.set_fen("r7/ppp3p1/7p/8/5k2/2BP4/PP4PP/7K w - - 1 24")
+board.set_fen("r3k2r/ppp1b1pp/3p1n2/2qbpp2/3n4/8/PPPPPPPP/RNBQKBNR w KQkq - 16 13")
 
 # print the FEN of the position
 print("FEN:", board.fen())
