@@ -1,5 +1,3 @@
-import chess
-
 def minimax(board, depth, evaluate_func, maximizingPlayer=True, alpha=-float('inf'), beta=float('inf')):
     """Implement the minimax algorithm with alpha-beta pruning"""
     if depth == 0 or board.is_game_over():

@@ -1,5 +1,3 @@
-import chess
-
 def evaluate(board):
     # Evaluation function only counts the material advantage as of now
 

@@ -1,5 +1,4 @@
 import chess
-import subprocess
 import time
 import search
 import evaluation
@@ -47,26 +46,3 @@ class ChessEngine:
 
     def quit(self):
         exit()
-
-def main():
-    engine = ChessEngine()
-    subprocess_engine = subprocess.Popen(["python"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    while True:
-        command = subprocess_engine.stdout.readline().strip().decode()
-        if command == "uci":
-            subprocess_engine.stdin.write(engine.uci().encode() + b"\n")
-        elif command == "isready":
-            subprocess_engine.stdin.write(engine.isready().encode() + b"\n")
-        elif command == "ucinewgame":
-            engine.ucinewgame()
-        elif command.startswith("position"):
-            _, position = command.split(" ", 1)
-            engine.position(position)
-        elif command.startswith("go"):
-            _, args = command.split(" ", 1)
-            subprocess_engine.stdin.write(engine.go(args).encode() + b"\n")
-        elif command == "stop":
-            engine.stop()
-        elif command == "quit":
-            engine.quit()
-            break
