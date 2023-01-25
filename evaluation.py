@@ -134,32 +134,36 @@ ATTACK_VALUES = {chess.PAWN: 50, chess.KNIGHT: 160, chess.BISHOP: 150, chess.ROO
 CHECK_BONUS = 50
 
 def evaluate_move(move, board):
-    value = 0
+    move_value = 0
     piece = board.piece_at(move.from_square)
+    if piece is None:
+        return 0
+    if move not in board.legal_moves:
+        return 0
 
     # check for captures
-    if move.to_square in board.pieces:
+    if move.to_square in board.piece_map():
         captured_piece = board.piece_at(move.to_square)
-        value += PIECE_VALUES[captured_piece.piece_type]
+        move_value += PIECE_VALUES[captured_piece.piece_type]
 
     # check for promotions
     if move.promotion:
-        value += PROMOTION_BONUS[move.promotion]
+        move_value += PROMOTION_BONUS[move.promotion]
 
     # check for attacks
     if board.is_attacked_by(not piece.color, move.to_square):
-        value += ATTACK_VALUES[piece.piece_type]
+        move_value += ATTACK_VALUES[piece.piece_type]
 
     # check for material advantage
-    if value > 0:
-        value += PIECE_VALUES[piece.piece_type]
-    elif value < 0:
-        value -= PIECE_VALUES[piece.piece_type]
+    if move_value > 0:
+        move_value += PIECE_VALUES[piece.piece_type]
+    elif move_value < 0:
+        move_value -= PIECE_VALUES[piece.piece_type]
 
     # check for check
     board.push(move)
     if board.is_check():
-        value += CHECK_BONUS
+        move_value += CHECK_BONUS
     board.pop()
 
-    return value
+    return move_value
