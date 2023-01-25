@@ -1,6 +1,7 @@
 import chess
 
 # Michniewski's piece values
+
 PAWN_VALUE = 100
 KNIGHT_VALUE = 325
 BISHOP_VALUE = 325
@@ -125,4 +126,49 @@ def evaluate_position(board):
                 piece_value = KING_VALUE + ENDGAME_KING_PSQT[square]
 
         score += piece_value if piece.color == chess.WHITE else -piece_value
+    return score
+
+PIECE_VALUES = {
+    chess.PAWN: 100,
+    chess.KNIGHT: 325,
+    chess.BISHOP: 325,
+    chess.ROOK: 500,
+    chess.QUEEN: 975,
+    chess.KING: 20000
+}
+PROMOTION_BONUS = 75
+CHECK_BONUS = 50
+ATTACK_BONUS = 40
+
+def evaluate_move(board, move):
+    score = 0
+
+    # Check if move is a capture
+    if board.is_capture(move):
+        # Add the value of the captured piece to the score
+        captured_piece = board.piece_at(move.to_square)
+        score += PIECE_VALUES[captured_piece.piece_type]
+
+    # Check if move puts the opponent in check
+    board.push(move)
+    if board.is_check():
+        score += CHECK_BONUS
+        board.pop()
+        return score
+
+    # Check if move is a pawn promotion
+    if move.promotion:
+        score += PIECE_VALUES[move.promotion] + PROMOTION_BONUS
+
+    # Check if move attacks a piece
+    attacked_piece = board.piece_at(move.to_square)
+    if attacked_piece:
+        score += ATTACK_BONUS
+
+    # Check if piece taking another piece results in material advantage
+    moving_piece = board.piece_at(move.from_square)
+    if captured_piece and PIECE_VALUES[captured_piece.piece_type] < PIECE_VALUES[moving_piece.piece_type]:
+        score += PIECE_VALUES[moving_piece.piece_type] - PIECE_VALUES[captured_piece.piece_type]
+
+    board.pop()
     return score
