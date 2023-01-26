@@ -18,7 +18,7 @@ def alpha_beta_pruning(board, depth, alpha, beta, is_maximizing_player):
 
     if is_maximizing_player:
         best_value = -float("inf")
-        for move in order_moves(board):
+        for move in order_moves(board, board.legal_moves):
             board.push(move)
             best_value = max(best_value, alpha_beta_pruning(board, depth - 1, alpha, beta, False))
             alpha = max(alpha, best_value)
@@ -28,7 +28,7 @@ def alpha_beta_pruning(board, depth, alpha, beta, is_maximizing_player):
         return best_value
     else:
         best_value = float("inf")
-        for move in order_moves(board):
+        for move in order_moves(board, board.legal_moves):
             board.push(move)
             best_value = min(best_value, alpha_beta_pruning(board, depth - 1, alpha, beta, True))
             beta = min(beta, best_value)
@@ -45,7 +45,10 @@ def get_best_move(board, depth, time_control=None, start_time=None):
     beta = float("inf")
     best_move = None
     best_value = -float("inf")
-    for move in order_moves(board):
+
+    moves = order_moves(board, board.legal_moves)
+
+    for move in moves:
         board.push(move)
         value = -alpha_beta_pruning(board, depth - 1, -beta, -alpha, False)
         board.pop()
