@@ -109,32 +109,25 @@ def is_endgame(board):
 
 def evaluate_position(board):
     score = 0
+    PIECE_TYPE_TO_PSQT = {
+        chess.PAWN: PAWN_PSQT,
+        chess.KNIGHT: KNIGHT_PSQT,
+        chess.BISHOP: BISHOP_PSQT,
+        chess.ROOK: ROOK_PSQT,
+        chess.QUEEN: QUEEN_PSQT,
+        chess.KING: MIDDLEGAME_KING_PSQT if not is_endgame(board) else ENDGAME_KING_PSQT
+    }
+
     for square in chess.SQUARES:
         piece = board.piece_at(square)
         if piece is None:
             continue
         piece_value = PIECE_VALUES[piece.piece_type]
-        if piece.piece_type == chess.PAWN:
-            piece_square_table = PAWN_PSQT
-        elif piece.piece_type == chess.KNIGHT:
-            piece_square_table = KNIGHT_PSQT
-        elif piece.piece_type == chess.BISHOP:
-            piece_square_table = BISHOP_PSQT
-        elif piece.piece_type == chess.ROOK:
-            piece_square_table = ROOK_PSQT
-        elif piece.piece_type == chess.QUEEN:
-            piece_square_table = QUEEN_PSQT
-        elif piece.piece_type == chess.KING:
-            if is_endgame(board):
-                piece_square_table = ENDGAME_KING_PSQT
-            else:
-                piece_square_table = MIDDLEGAME_KING_PSQT
-        
-        if piece.color == chess.WHITE:
-            score += piece_value + piece_square_table[square]
-        else:
-            score -= piece_value + piece_square_table[chess.square_mirror(square)]
+        psqt = PIECE_TYPE_TO_PSQT[piece.piece_type]
+        square_value = psqt[square] if piece.color == chess.WHITE else psqt[chess.square_mirror(square)]
+        score += piece_value + square_value if piece.color == chess.WHITE else -(piece_value + square_value)
     return score
+
 
 
 PROMOTION_BONUS = {chess.QUEEN: 900, chess.ROOK: 500, chess.BISHOP: 330, chess.KNIGHT: 320}
