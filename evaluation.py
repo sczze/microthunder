@@ -2,11 +2,7 @@ import chess
 
 # Piece values adapted from Michniewski's simplified evaluation function
 
-PROMOTION_BONUS = {chess.QUEEN: 975, chess.ROOK: 500, chess.BISHOP: 325, chess.KNIGHT: 325}
 PIECE_VALUES = {chess.PAWN: 100, chess.KNIGHT: 320, chess.BISHOP: 330, chess.ROOK: 500, chess.QUEEN: 900, chess.KING: 20000}
-ATTACK_VALUES = {chess.PAWN: 50, chess.KNIGHT: 160, chess.BISHOP: 150, chess.ROOK: 250, chess.QUEEN: 500, chess.KING: 10000}
-CHECK_BONUS = 10
-
 
 PAWN_PSQT = [
     0,  0,  0,  0,  0,  0,  0,  0,
@@ -115,12 +111,35 @@ def evaluate_position(board):
     score = 0
     for square in chess.SQUARES:
         piece = board.piece_at(square)
-        if piece is not None:
-            if piece.color == chess.WHITE:
-                score += PIECE_VALUES[piece.piece_type]
+        if piece is None:
+            continue
+        piece_value = PIECE_VALUES[piece.piece_type]
+        if piece.piece_type == chess.PAWN:
+            piece_square_table = PAWN_PSQT
+        elif piece.piece_type == chess.KNIGHT:
+            piece_square_table = KNIGHT_PSQT
+        elif piece.piece_type == chess.BISHOP:
+            piece_square_table = BISHOP_PSQT
+        elif piece.piece_type == chess.ROOK:
+            piece_square_table = ROOK_PSQT
+        elif piece.piece_type == chess.QUEEN:
+            piece_square_table = QUEEN_PSQT
+        elif piece.piece_type == chess.KING:
+            if is_endgame(board):
+                piece_square_table = ENDGAME_KING_PSQT
             else:
-                score -= PIECE_VALUES[piece.piece_type]
+                piece_square_table = MIDDLEGAME_KING_PSQT
+        
+        if piece.color == chess.WHITE:
+            score += piece_value + piece_square_table[square]
+        else:
+            score -= piece_value + piece_square_table[chess.square_mirror(square)]
     return score
+
+
+PROMOTION_BONUS = {chess.QUEEN: 900, chess.ROOK: 500, chess.BISHOP: 330, chess.KNIGHT: 320}
+ATTACK_VALUES = {chess.PAWN: 50, chess.KNIGHT: 160, chess.BISHOP: 150, chess.ROOK: 250, chess.QUEEN: 500, chess.KING: 10000}
+CHECK_BONUS = 10
 
 def evaluate_move(move, board):
     if move not in board.legal_moves:
