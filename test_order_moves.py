@@ -1,16 +1,22 @@
 import chess
-import movegen
-import evaluation
+from movegen import order_moves
+from evaluation import evaluate_move
 
-# Initialize the chess board
-board = chess.Board()
+# Initialize board with a FEN position
+board = chess.Board("rnbqk1nr/ppppp2p/5pp1/3N4/2P5/5N2/PP1bPPPP/R1BQKB1R w KQkq - 0 5")
 
-# Get the list of legal moves for the current position
+# Generate list of legal moves
 moves = list(board.legal_moves)
 
-# Order the moves using the move ordering function
-ordered_moves = movegen.order_moves(board, moves)
+# Print moves and their values before ordering
+print("Moves before ordering:")
+for move in moves:
+    print(f"{move}: {evaluate_move(move, board)}")
 
-# Print the value of each move along with the move
+# Order moves using order_moves function
+ordered_moves = order_moves(board, moves)
+
+# Print moves and their values after ordering
+print("Moves after ordering:")
 for move in ordered_moves:
-    print(f"Move: {move}, Value: {evaluation.evaluate_move(move, board)}")
+    print(f"{move}: {evaluate_move(move, board)}")
