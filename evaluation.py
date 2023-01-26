@@ -1,13 +1,11 @@
 import chess
 
-# Michniewski's piece values
+# Piece values adapted from Michniewski's simplified evaluation function
 
-PAWN_VALUE = 100
-KNIGHT_VALUE = 325
-BISHOP_VALUE = 325
-ROOK_VALUE = 500
-QUEEN_VALUE = 975
-KING_VALUE = 20000
+PROMOTION_BONUS = {chess.QUEEN: 975, chess.ROOK: 500, chess.BISHOP: 325, chess.KNIGHT: 325}
+PIECE_VALUES = {chess.PAWN: 100, chess.KNIGHT: 320, chess.BISHOP: 330, chess.ROOK: 500, chess.QUEEN: 900, chess.KING: 20000}
+ATTACK_VALUES = {chess.PAWN: 50, chess.KNIGHT: 160, chess.BISHOP: 150, chess.ROOK: 250, chess.QUEEN: 500, chess.KING: 10000}
+CHECK_BONUS = 10
 
 
 PAWN_PSQT = [
@@ -106,40 +104,19 @@ def evaluate_position(board):
     score = 0
     for square in chess.SQUARES:
         piece = board.piece_at(square)
-        if piece is None:
-            continue
-        piece_value = 0
-        if piece.piece_type == chess.PAWN:
-            piece_value = PAWN_VALUE + PAWN_PSQT[square]
-        elif piece.piece_type == chess.KNIGHT:
-            piece_value = KNIGHT_VALUE + KNIGHT_PSQT[square]
-        elif piece.piece_type == chess.BISHOP:
-            piece_value = BISHOP_VALUE + BISHOP_PSQT[square]
-        elif piece.piece_type == chess.ROOK:
-            piece_value = ROOK_VALUE + ROOK_PSQT[square]
-        elif piece.piece_type == chess.QUEEN:
-            piece_value = QUEEN_VALUE + QUEEN_PSQT[square]
-        elif piece.piece_type == chess.KING:
-            if is_endgame(board):
-                piece_value = KING_VALUE + MIDDLEGAME_KING_PSQT[square]
+        if piece is not None:
+            if piece.color == chess.WHITE:
+                score += PIECE_VALUES[piece.piece_type]
             else:
-                piece_value = KING_VALUE + ENDGAME_KING_PSQT[square]
-
-        score += piece_value if piece.color == chess.WHITE else -piece_value
+                score -= PIECE_VALUES[piece.piece_type]
     return score
 
-PROMOTION_BONUS = {chess.QUEEN: 975, chess.ROOK: 500, chess.BISHOP: 325, chess.KNIGHT: 325}
-PIECE_VALUES = {chess.PAWN: 100, chess.KNIGHT: 325, chess.BISHOP: 325, chess.ROOK: 500, chess.QUEEN: 975, chess.KING: 20000}
-ATTACK_VALUES = {chess.PAWN: 50, chess.KNIGHT: 160, chess.BISHOP: 150, chess.ROOK: 250, chess.QUEEN: 500, chess.KING: 10000}
-CHECK_BONUS = 50
-
 def evaluate_move(move, board):
-    move_value = 0
-    piece = board.piece_at(move.from_square)
-    if piece is None:
-        return 0
     if move not in board.legal_moves:
-        return 0
+        return -float("inf")
+    
+    move_value = 1
+    piece = board.piece_at(move.from_square)
 
     # check for captures
     if move.to_square in board.piece_map():
@@ -151,13 +128,14 @@ def evaluate_move(move, board):
         move_value += PROMOTION_BONUS[move.promotion]
 
     # check for attacks
-    if board.is_attacked_by(not piece.color, move.to_square):
+    attacked_piece = board.piece_at(move.to_square)
+    if attacked_piece and attacked_piece.color != piece.color:
         move_value += ATTACK_VALUES[piece.piece_type]
 
     # check for material advantage
-    if move_value > 0:
+    if move_value > 1:
         move_value += PIECE_VALUES[piece.piece_type]
-    elif move_value < 0:
+    elif move_value < 1:
         move_value -= PIECE_VALUES[piece.piece_type]
 
     # check for check
