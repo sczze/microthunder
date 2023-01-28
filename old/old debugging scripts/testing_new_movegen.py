@@ -1,6 +1,6 @@
 import chess
 import time
-import movegen
+import search
 
 # Set up the board
 board = chess.Board()
@@ -11,10 +11,10 @@ max_depth = 5
 while not board.is_game_over():
     # Get the best move for the current player
     start_time = time.time()
-    best_move = movegen.get_best_move(board, max_depth)
+    best_move = search.get_best_move(board, max_depth)
     end_time = time.time()
     print("Time taken for move:", end_time - start_time)
-    print("Evaluation score:", movegen.evaluate_position(board))
+    print("Evaluation score:", search.evaluate_position(board))
     print("Best move:", best_move)
     print()
 

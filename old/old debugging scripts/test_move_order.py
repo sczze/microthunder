@@ -1,5 +1,5 @@
 import chess
-import movegen
+import search
 
 board = chess.Board()
 
@@ -9,7 +9,7 @@ while not board.is_game_over():
     best_score = -9999
     for move in board.legal_moves:
         board.push(move)
-        score = movegen.evaluate_move(move, board)
+        score = search.evaluate_move(move, board)
         board.pop()
         if score > best_score:
             best_score = score

@@ -1,7 +1,7 @@
 import chess
 import time
 from evaluation import evaluate_move, evaluate_position
-from movegen import order_moves, get_best_move
+from search import order_moves, get_best_move
 
 # Set up the board and initial position
 board = chess.Board()

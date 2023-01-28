@@ -1,5 +1,5 @@
 import chess
-from movegen import order_moves
+from search import order_moves
 from evaluation import evaluate_move
 
 # Initialize board with a FEN position
