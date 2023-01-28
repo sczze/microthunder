@@ -3,25 +3,42 @@ import evaluation
 
 fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 board = chess.Board(fen)
+print("Position evalation (starting position): ", evaluation.evaluate_position(board))
+start = evaluation.evaluate_position(board)
 
-print("Evaluation of position (neutral position): ", evaluation.evaluate_position(board), "\n")
-equal = evaluation.evaluate_position(board)
-
-fen = "rnbqkbnr/pppppppp/8/8/2PP1B2/2NBPN2/PP3PPP/R2QK2R w KQkq - 0 1"
+fen = "k3bqrr/8/8/8/8/8/8/K2BBQRR w - - 0 1"
 board = chess.Board(fen)
+print("Position evalation (Midgame white up material): ", evaluation.evaluate_position(board))
+a = evaluation.evaluate_position(board)
 
-print("Evaluation of position (white better): ", evaluation.evaluate_position(board), "\n")
-white_better = evaluation.evaluate_position(board)
-
-fen = "r2qk2r/ppp3pp/2npbn2/2b1pp2/8/8/PPPPPPPP/RNBQKBNR b KQkq - 3 8"
+fen = "k2bbqrr/8/8/8/8/8/8/K3BQRR w - - 0 1"
 board = chess.Board(fen)
+print("Position evaluation (Midgame black up material): ", evaluation.evaluate_position(board))
+b = evaluation.evaluate_position(board)
 
-print("Evaluation of position (black better): ", evaluation.evaluate_position(board), "\n")
-black_better = evaluation.evaluate_position(board)
+fen = "k5rr/8/8/8/8/8/8/K2B2RR w - - 0 1"
+board = chess.Board(fen)
+print("Position evaluation (Endgame white up material): ", evaluation.evaluate_position(board))
+c = evaluation.evaluate_position(board)
 
-if equal == 0:
-    if white_better == 50:
-        if black_better == -50:
-            print("position eval working correctly!")
-        else:
-            print("position eval not working correctly!")
+fen = "k2b2rr/8/8/8/8/8/8/K5RR w - - 0 1"
+board = chess.Board(fen)
+print("Position evaluation (Endgame black up material): ", evaluation.evaluate_position(board))
+d = evaluation.evaluate_position(board)
+
+fen = "k5rr/8/8/3K4/8/8/8/6RR w - - 0 1"
+board = chess.Board(fen)
+print("Position evaluation (Endgame white up position): ", evaluation.evaluate_position(board))
+e = evaluation.evaluate_position(board)
+
+fen = "6rr/8/8/3k4/8/8/8/K5RR w - - 0 1"
+board = chess.Board(fen)
+print("Position evaluation (Endgame black up position): ", evaluation.evaluate_position(board))
+f = evaluation.evaluate_position(board)
+
+print("\n")
+
+if start == 0 and a > 0 and b < 0 and c > 0 and d < 0 and e > 0 and f < 0:
+    print("evaluate_position and is_endgame working correctly!")
+else:
+    print("*NOT* working correctly!")
