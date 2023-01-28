@@ -7,7 +7,7 @@ from search import order_moves, get_best_move
 board = chess.Board()
 
 # Set the search depth
-depth = 5
+depth = 3
 
 while not board.is_game_over():
     # Print the current board position
@@ -32,7 +32,7 @@ while not board.is_game_over():
     print()
 
     # Get the best move
-    best_move = get_best_move(board, 5)
+    best_move = get_best_move(board, 3)
     print("Best move:", best_move)
     print()
 

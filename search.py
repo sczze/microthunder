@@ -9,37 +9,26 @@ def order_moves(board, moves):
     move_value = [(move, evaluate_move(move, board)) for move in moves]
     return [move for move, value in sorted(move_value, key=lambda x: x[1], reverse=True)]
 
-def alpha_beta_pruning(board, depth, alpha, beta, is_maximizing_player):
+def negamax(board, depth, alpha, beta):
     """
-    Function to perform alpha beta pruning for move evaluation
+    Function to perform negamax with alpha beta pruning
     """
     if depth == 0 or board.is_game_over():
         return evaluate_position(board)
 
-    if is_maximizing_player:
-        best_value = -float("inf")
-        for move in order_moves(board, board.legal_moves):
-            board.push(move)
-            best_value = max(best_value, alpha_beta_pruning(board, depth - 1, alpha, beta, False))
-            alpha = max(alpha, best_value)
-            board.pop()
-            if alpha >= beta:
-                break
-        return best_value
-    else:
-        best_value = float("inf")
-        for move in order_moves(board, board.legal_moves):
-            board.push(move)
-            best_value = min(best_value, alpha_beta_pruning(board, depth - 1, alpha, beta, True))
-            beta = min(beta, best_value)
-            board.pop()
-            if alpha >= beta:
-                break
-        return best_value
+    best_value = -float("inf")
+    for move in order_moves(board, board.legal_moves):
+        board.push(move)
+        best_value = max(best_value, -negamax(board, depth - 1, -beta, -alpha))
+        alpha = max(alpha, best_value)
+        board.pop()
+        if alpha >= beta:
+            break
+    return best_value
 
 def get_best_move(board, depth, time_control=None, start_time=None):
     """
-    Function to get the best move from the current board position using alpha beta pruning and move ordering
+    Function to get the best move from the current board position using negamax and move ordering
     """
     alpha = -float("inf")
     beta = float("inf")
@@ -50,7 +39,7 @@ def get_best_move(board, depth, time_control=None, start_time=None):
 
     for move in moves:
         board.push(move)
-        value = -alpha_beta_pruning(board, depth - 1, -beta, -alpha, False)
+        value = -negamax(board, depth - 1, -beta, -alpha)
         board.pop()
         if value > best_value:
             best_value = value
