@@ -1,7 +1,5 @@
 import chess
 
-# Piece and table values adapted from PeSTO's Evaluation Function
-
 MIDGAME_PIECE_VALUES = {
     chess.PAWN: 82,
     chess.KNIGHT: 337,
@@ -225,10 +223,7 @@ def evaluate_position(board):
     return score
 
 
-PROMOTION_BONUS = {chess.QUEEN: 900, chess.ROOK: 500, chess.BISHOP: 330, chess.KNIGHT: 320}
-ATTACK_VALUES = {chess.PAWN: 50, chess.KNIGHT: 160, chess.BISHOP: 150, chess.ROOK: 250, chess.QUEEN: 500, chess.KING: 10000}
-CHECK_BONUS = 10
-
+'''
 def evaluate_move(move, board):
     if move not in board.legal_moves:
         return -float("inf")
@@ -263,3 +258,4 @@ def evaluate_move(move, board):
     board.pop()
 
     return move_value
+'''
