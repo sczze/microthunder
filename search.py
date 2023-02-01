@@ -3,11 +3,9 @@ import chess
 from evaluation import evaluate_move, evaluate_position
 
 def order_moves(board, moves):
-    """
-    Function to order moves based on their value, as determined by the evaluate_move function
-    """
-    move_value = [(move, evaluate_move(move, board)) for move in moves]
+    move_value = [(move, evaluate_move(board, move)) for move in moves]
     return [move for move, value in sorted(move_value, key=lambda x: x[1], reverse=True)]
+
 
 def negamax(board, depth, alpha, beta):
     """
