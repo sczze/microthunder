@@ -34,25 +34,44 @@ def is_endgame(board):
         return True
     return False
 
+def count_pieces(board, piece_type):
+    return len(board.pieces(piece_type, chess.WHITE)) + len(board.pieces(piece_type, chess.BLACK))
+
+
+PIECE_PHASES = {
+    chess.PAWN: 0,
+    chess.KNIGHT: 1,
+    chess.BISHOP: 1,
+    chess.ROOK: 2,
+    chess.QUEEN: 4
+}
 
 def evaluate_position(board):
     score = 0
     endgame = is_endgame(board)
+    total_phase = 0
 
+    # total game phase
+    for piece_type in [chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN, chess.KING]:
+        total_phase += count_pieces(board, piece_type) * PIECE_PHASES.get(piece_type, 0)
+    phase = (total_phase * 256 + (total_phase / 2)) / total_phase
+
+    # score
     for square in chess.SQUARES:
         piece = board.piece_at(square)
         if piece is None:
             continue
         piece_type = piece.piece_type
         color = piece.color
-        if endgame:
-            piece_value = ENDGAME_PIECE_VALUES[piece_type]
-            psqt = ENDGAME_PSQT[piece_type]
-        else:
-            piece_value = MIDGAME_PIECE_VALUES[piece_type]
-            psqt = MIDGAME_PSQT[piece_type]
-        
+
+        # piece value
+        piece_value = (MIDGAME_PIECE_VALUES[piece_type] * (256 - phase) +
+                       ENDGAME_PIECE_VALUES[piece_type] * phase) / 256
+
+        # square value
+        psqt = MIDGAME_PSQT[piece_type] if not endgame else ENDGAME_PSQT[piece_type]
         square_value = psqt[square] if color == chess.WHITE else psqt[chess.square_mirror(square)]
+
         score += piece_value + square_value if color == chess.WHITE else -(piece_value + square_value)
     return score
 
