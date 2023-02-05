@@ -26,7 +26,7 @@ board = chess.Board(fen)
 print("Position evaluation (Endgame black up material): ", evaluation.evaluate_position(board))
 d = evaluation.evaluate_position(board)
 
-fen = "k5rr/8/8/3K4/8/8/8/6RR w - - 0 1"
+fen = "k5rr/8/8/8/3K4/8/8/6RR w - - 0 1"
 board = chess.Board(fen)
 print("Position evaluation (Endgame white up position): ", evaluation.evaluate_position(board))
 e = evaluation.evaluate_position(board)

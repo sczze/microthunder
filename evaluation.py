@@ -37,43 +37,70 @@ def is_endgame(board):
 def count_pieces(board, piece_type):
     return len(board.pieces(piece_type, chess.WHITE)) + len(board.pieces(piece_type, chess.BLACK))
 
-
-PIECE_PHASES = {
-    chess.PAWN: 0,
-    chess.KNIGHT: 1,
-    chess.BISHOP: 1,
-    chess.ROOK: 2,
-    chess.QUEEN: 4
-}
-
-def evaluate_position(board):
+def evaluate_midgame_position(board):
     score = 0
-    endgame = is_endgame(board)
-    total_phase = 0
-
-    # total game phase
-    for piece_type in [chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN, chess.KING]:
-        total_phase += count_pieces(board, piece_type) * PIECE_PHASES.get(piece_type, 0)
-    phase = (total_phase * 256 + (total_phase / 2)) / total_phase
-
-    # score
     for square in chess.SQUARES:
         piece = board.piece_at(square)
         if piece is None:
             continue
         piece_type = piece.piece_type
         color = piece.color
-
-        # piece value
-        piece_value = (MIDGAME_PIECE_VALUES[piece_type] * (256 - phase) +
-                       ENDGAME_PIECE_VALUES[piece_type] * phase) / 256
-
-        # square value
-        psqt = MIDGAME_PSQT[piece_type] if not endgame else ENDGAME_PSQT[piece_type]
+        piece_value = MIDGAME_PIECE_VALUES[piece_type]
+        psqt = MIDGAME_PSQT[piece_type]
         square_value = psqt[square] if color == chess.WHITE else psqt[chess.square_mirror(square)]
-
         score += piece_value + square_value if color == chess.WHITE else -(piece_value + square_value)
     return score
+
+def evaluate_endgame_position(board):
+    score = 0
+    for square in chess.SQUARES:
+        piece = board.piece_at(square)
+        if piece is None:
+            continue
+        piece_type = piece.piece_type
+        color = piece.color
+        piece_value = ENDGAME_PIECE_VALUES[piece_type]
+        psqt = ENDGAME_PSQT[piece_type]
+        square_value = psqt[square] if color == chess.WHITE else psqt[chess.square_mirror(square)]
+        score += piece_value + square_value if color == chess.WHITE else -(piece_value + square_value)
+    return score
+
+def calculate_phase(board):
+    PAWN_PHASE = 0
+    KNIGHT_PHASE = 1
+    BISHOP_PHASE = 1
+    ROOK_PHASE = 2
+    QUEEN_PHASE = 4
+    phase = 0
+    total_phase = 16 * PAWN_PHASE + 4 * (KNIGHT_PHASE + BISHOP_PHASE + ROOK_PHASE) + 2 * QUEEN_PHASE
+    
+    for piece_type in [chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN]:
+        for color in [chess.WHITE, chess.BLACK]:
+            count = len(board.pieces(piece_type, color))
+            if piece_type == chess.PAWN:
+                phase -= count * PAWN_PHASE
+            elif piece_type == chess.KNIGHT:
+                phase -= count * KNIGHT_PHASE
+            elif piece_type == chess.BISHOP:
+                phase -= count * BISHOP_PHASE
+            elif piece_type == chess.ROOK:
+                phase -= count * ROOK_PHASE
+            elif piece_type == chess.QUEEN:
+                phase -= count * QUEEN_PHASE
+    phase = (phase * 256 + (total_phase // 2)) // total_phase
+    return phase
+
+
+def evaluate_position(board):
+    # The phase is a value between 0 and 256, with 0 representing the midgame and 256 representing the endgame
+    phase = calculate_phase(board)
+    
+    # Create two separate tables for midgame and endgame evaluations
+    midgame_eval = evaluate_midgame_position(board)
+    endgame_eval = evaluate_endgame_position(board)
+    
+    # Interpolate between the midgame and endgame evaluations based on the phase
+    return int((midgame_eval * (256 - phase) + endgame_eval * phase) / 256)
 
 def evaluate_move(board, move):
     move_value = 0
